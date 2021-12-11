@@ -1,4 +1,3 @@
-from datetime import date
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 from nsepy import get_history
@@ -19,14 +18,14 @@ st.title("NSE STOCK CHARTS")
 name="SBIN"
 #name= (st.text_input('Enter Stock Symbol')).upper()
 name = st.selectbox(
-     'Symbol',
+     'Select stock symbol',
      d.keys())
 col1,col2, col3,col4,col5,col6 = st.columns(6) 
 
 url = 'https://www.google.com/finance/quote/'+name+':NSE'
 
 page = requests.get(url).text
-soup = BeautifulSoup(page)
+soup = BeautifulSoup(page, features="lxml")
 soup.prettify()
 t= str(soup.find_all(class_="bLLb2d"))
 k=t
@@ -115,13 +114,22 @@ if (col6.button("LOW")):
 	# LOW
 	""")
 	st.line_chart(stock['Low'])
+else :
+	st.title(d[name])
+	stock = get_history(symbol=name,
+	                   start=prev_date,
+	                   end=today_date)
+	
+	st.write("""
+	# VOLUME WEIGHTED AVERAGE PRICE
+	""")
+
+	st.line_chart(stock['VWAP'])
+
 
 if ('bLLb2d' in k):
 	st.write("""
 	# ABOUT
 	""")
 	st.write(t)
-
-
-
 
