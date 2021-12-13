@@ -1,5 +1,5 @@
 # streamlit-nse-charts
-Very simply Streamlit app that displays charts for various parameters of NSE stocks.
+Very simple Streamlit app that displays charts for various parameters of NSE stocks and the live stock price. 
 
 Run using ``` streamlit run streamlit_stock.py ``` . 
 
