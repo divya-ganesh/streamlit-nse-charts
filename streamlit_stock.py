@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+import time
 from nsepy import get_history
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -7,6 +8,25 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+def get_class_contents (name, class_name):
+	url = 'https://www.google.com/finance/quote/'+name+':NSE'
+	page = requests.get(url).text
+	soup = BeautifulSoup(page, features="lxml")
+	soup.prettify()
+	t= str(soup.find_all(class_=class_name))
+	if (class_name in t):
+		i = t.index('>') + 1
+		t = t[i:]
+		i = t.index('<')
+		t=t[:i]
+	return t
+
+
+def live_price (name):
+	
+	while (True):
+		t = get_class_contents(name, 'YMlKec fxKbKc')
+		textbox.markdown("# %s" % t)
 
 
 today_date = datetime.today()
@@ -20,6 +40,7 @@ name="SBIN"
 name = st.selectbox(
      'Select stock symbol',
      d.keys())
+st.write("Select chart to show")
 col1,col2, col3,col4,col5,col6 = st.columns(6) 
 
 url = 'https://www.google.com/finance/quote/'+name+':NSE'
@@ -53,8 +74,13 @@ if (dur == 'Last week'):
 
 today_date = datetime.today().date()
 prev_date = prev_date.date()
+global textbox
+st.write("##### Live price:")
+textbox = st.empty()
+st.title(d[name])
+
 if (col1.button("VWAP")):
-	st.title(d[name])
+	
 	stock = get_history(symbol=name,
 	                   start=prev_date,
 	                   end=today_date)
@@ -66,7 +92,6 @@ if (col1.button("VWAP")):
 	st.line_chart(stock['VWAP'])
 
 if (col2.button("VOLUME")):
-	st.title(name)
 	stock = get_history(symbol=name,
 		                   start=prev_date,
 		                   end=today_date)
@@ -76,7 +101,6 @@ if (col2.button("VOLUME")):
 	st.line_chart(stock['Volume'])
 
 if (col3.button("OPEN")):
-	st.title(name)
 	stock = get_history(symbol=name,
 		                   start=prev_date,
 		                   end=today_date)
@@ -86,7 +110,6 @@ if (col3.button("OPEN")):
 	st.line_chart(stock['Open'])
 
 if (col4.button("CLOSE")):
-	st.title(name)
 	stock = get_history(symbol=name,
 		                   start=prev_date,
 		                   end=today_date)
@@ -96,7 +119,6 @@ if (col4.button("CLOSE")):
 	st.line_chart(stock['Close'])
 
 if (col5.button("HIGH")):
-	st.title(name)
 	stock = get_history(symbol=name,
 		                   start=prev_date,
 		                   end=today_date)
@@ -106,7 +128,6 @@ if (col5.button("HIGH")):
 	st.line_chart(stock['High'])
 
 if (col6.button("LOW")):
-	st.title(name)
 	stock = get_history(symbol=name,
 		                   start=prev_date,
 		                   end=today_date)
@@ -114,22 +135,12 @@ if (col6.button("LOW")):
 	# LOW
 	""")
 	st.line_chart(stock['Low'])
-else :
-	st.title(d[name])
-	stock = get_history(symbol=name,
-	                   start=prev_date,
-	                   end=today_date)
-	
-	st.write("""
-	# VOLUME WEIGHTED AVERAGE PRICE
-	""")
 
-	st.line_chart(stock['VWAP'])
-
-
-if ('bLLb2d' in k):
+if (len(t)>0):
 	st.write("""
 	# ABOUT
 	""")
 	st.write(t)
 
+
+live_price(name)
